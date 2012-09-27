@@ -1,16 +1,18 @@
-CloudBees Run@Cloud SBT Plugin
+CloudBees Run@Cloud Play2 SBT Plugin
 ------------------------------
 
-Integration for SBT that lets you deploy apps to the CloudBees RUN@Cloud PaaS
+Integration for SBT that lets you deploy Play 2 apps to the CloudBees RUN@Cloud PaaS.
+
+This plugin is a fork of Tim Perret's sbt-cloudbees-plugin with play2 specific additions added.
 
 Usage
 -----
 
 Firstly you need to add the plugin to your ~/.sbt/user.sbt or to your regular project build.sbt. You can do that with the following:
 
-<pre><code>resolvers += "sonatype.repo" at "https://oss.sonatype.org/content/groups/public"
+<pre><code>resolvers += "sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-addSbtPlugin("eu.getintheloop" %% "sbt-cloudbees-plugin" % "0.4.0")
+addSbtPlugin("com.cloudbees.deploy.play" %% "sbt-cloudbees-play-plugin" % "0.1-SNAPSHOT")
 </code></pre>
 
 Don't forget to export the settings so they are included by SBT:
@@ -35,6 +37,9 @@ These of course are global settings per-machine, so the only application specifi
 <pre><code>CloudBees.username := Some("youruser")
 
 CloudBees.applicationId := Some("yourapp")
+
+// Optional: use to pass in properties to play. Can pass in a url for application.conf (see docs)
+// Cloudbees.jvmProps := "-DapplyEvolutions=true -Dmykey=false"
 </code></pre>
 
 Now your all configured and good to go, there are two commands you can run with this plugin:
