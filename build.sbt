@@ -1,48 +1,43 @@
 
 sbtPlugin := true
 
-organization := "eu.getintheloop"
+organization := "com.cloudbees"
 
-name := "sbt-cloudbees-plugin"
+name := "sbt-cloudbees-play-plugin"
 
-version := "0.4.2-SNAPSHOT"
+version := "0.1-SNAPSHOT"
+
 
 // maven repositories
 resolvers ++= Seq(
   "specs.repo" at "http://specs.googlecode.com/svn/maven2/",
   "sonatype.repo" at "https://oss.sonatype.org/content/groups/public",
-  "web-plugin.repo" at "http://siasia.github.com/maven2"
+  "web-plugin.repo" at "http://siasia.github.com/maven2",
+  "typesafe releases" at "http://repo.typesafe.com/typesafe/releases"
 )
 
 scalacOptions += "-deprecation"
 
 libraryDependencies ++= Seq(
-  "com.cloudbees" % "cloudbees-api-client-nodeps" % "1.1.2" % "compile",
+  "com.cloudbees" % "cloudbees-api-client-nodeps" % "1.2.1" % "compile",
   "edu.stanford.ejalbert" % "BrowserLauncher2" % "1.3" % "compile",
   "org.scala-tools.testing" % "specs" % "1.6.1" % "test"
 )
 
-libraryDependencies <+= sbtVersion(v => v match {
-  case "0.11.0" => "com.github.siasia" %% "xsbt-web-plugin" % "0.11.0-0.2.8"
-  case "0.11.1" => "com.github.siasia" %% "xsbt-web-plugin" % "0.11.1-0.2.10"
-  case "0.11.2" => "com.github.siasia" %% "xsbt-web-plugin" % "0.11.2-0.2.11"
-  case "0.11.3" => "com.github.siasia" %% "xsbt-web-plugin" % "0.11.3-0.2.11.1"
-  case x if (x.startsWith("0.12")) => "com.github.siasia" %% "xsbt-web-plugin" % "0.12.0-0.2.11.1"
-})
+libraryDependencies <++= (scalaVersion, sbtVersion)((scalaVersion, sbtVersion) =>
+	Seq("play" % "sbt-plugin" % "2.0.3" % "provided->default(compile)" extra ("scalaVersion" -> scalaVersion, "sbtVersion" -> sbtVersion))
+)
 
-// publishing
-publishTo <<= version { (v: String) =>
-  if(v endsWith "-SNAPSHOT") Some("Scala Tools Nexus" at "http://nexus.scala-tools.org/content/repositories/snapshots/")
-  else Some("Scala Tools Nexus" at "http://nexus.scala-tools.org/content/repositories/releases/")
-}
-
-credentials += Credentials(Path.userHome / ".ivy2" / ".credentials.sonatype")
+credentials += Credentials(Path.userHome / ".ivy2" / ".credentials.cloudbees-public")
 
 publishTo <<= version { (v: String) => 
-  val nexus = "https://oss.sonatype.org/" 
-  if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots") 
-  else Some("releases" at nexus + "service/local/staging/deploy/maven2") 
+  if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at "dav:https://repository-cloudbees.forge.cloudbees.com/public-snapshot/") 
+  else Some("releases" at "dav:https://repository-cloudbees.forge.cloudbees.com/public-release/") 
 }
+
+seq(aetherSettings: _*)
+
+seq(aetherPublishSettings: _*)
 
 publishMavenStyle := true
 
@@ -51,7 +46,7 @@ publishArtifact in Test := false
 pomIncludeRepository := { repo => false }
 
 pomExtra := (
-  <url>https://github.com/timperrett/sbt-cloudbees-plugin</url>
+  <url>https://github.com/cloudbees-cummunity/sbt-cloudbees-play-plugin</url>
   <licenses>
     <license>
       <name>Apache 2.0 License</name>
@@ -60,8 +55,8 @@ pomExtra := (
     </license>
   </licenses>
   <scm>
-    <url>git@github.com:timperrett/sbt-cloudbees-plugin.git</url>
-    <connection>scm:git:git@github.com:timperrett/sbt-cloudbees-plugin.git</connection>
+    <url>git@github.com:cloudbees-community/sbt-cloudbees-play-plugin.git</url>
+    <connection>scm:git:git@github.com:cloudbees-community/sbt-cloudbees-play-plugin.git</connection>
   </scm>
   <developers>
     <developer>
