@@ -1,7 +1,7 @@
 
 sbtPlugin := true
 
-organization := "com.cloudbees"
+organization := "com.cloudbees.deploy.play"
 
 name := "sbt-cloudbees-play-plugin"
 
@@ -28,22 +28,21 @@ libraryDependencies <++= (scalaVersion, sbtVersion)((scalaVersion, sbtVersion) =
 	Seq("play" % "sbt-plugin" % "2.0.3" % "provided->default(compile)" extra ("scalaVersion" -> scalaVersion, "sbtVersion" -> sbtVersion))
 )
 
-credentials += Credentials(Path.userHome / ".ivy2" / ".credentials.cloudbees-public")
+credentials += Credentials(Path.userHome / ".ivy2" / ".credentials.sonatype")
 
 publishTo <<= version { (v: String) => 
-  if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at "dav:https://repository-cloudbees.forge.cloudbees.com/public-snapshot/") 
-  else Some("releases" at "dav:https://repository-cloudbees.forge.cloudbees.com/public-release/") 
+  val nexus = "https://oss.sonatype.org/" 
+  if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots") 
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2") 
 }
 
-seq(aetherSettings: _*)
-
-seq(aetherPublishSettings: _*)
 
 publishMavenStyle := true
 
 publishArtifact in Test := false
 
 pomIncludeRepository := { repo => false }
+
 
 pomExtra := (
   <url>https://github.com/cloudbees-cummunity/sbt-cloudbees-play-plugin</url>

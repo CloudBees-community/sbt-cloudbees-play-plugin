@@ -88,8 +88,6 @@ object Plugin extends Plugin {
         		"runtime.args" -> "$app_dir/app/%s-%s/".format(name, version) 
         ) ++ deployParams
         
-        s.log.debug("Deploy params: " + parameters.toString)
-        
         val result = client().applicationDeployArchive(to, null, null, archive.asFile, null, "zip", true, parameters, new HashWriteProgress)
         
         s.log.info("Application avalible at %s".format(result.getUrl))
