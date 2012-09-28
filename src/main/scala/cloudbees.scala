@@ -1,10 +1,12 @@
 package cloudbees
 
-import sbt._, Keys._, Project.Initialize
+import sbt._
+import Keys._
 import com.cloudbees.api.{BeesClient,HashWriteProgress}
 import edu.stanford.ejalbert.{BrowserLauncher => BL}
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._  
+import java.io.FileInputStream
 
 object BrowserLauncher extends BL()
 
@@ -15,7 +17,7 @@ object Plugin extends Plugin {
     def apply() = {
       val k = require(key, apiKey)
       val s = require(secret, apiSecret)
-      val client = new BeesClient("https://%s/api".format(host), k, s, "xml", "1.0")
+      val client = new BeesClient(host, k, s, "xml", "1.0")
       client.setVerbose(verbose)
       client
     }
@@ -34,23 +36,27 @@ object Plugin extends Plugin {
     val applicationId = SettingKey[Option[String]]("cloudbees-application-id", "The application identifier of the deploying project")
     val client        = SettingKey[Client]("cloudbees-client")
     val deployParams  = SettingKey[Map[String, String]]("cloudbees-deploy-params", "Pass in extra options to the Cloudbees API client. Not normally need.")
-    val jvmProps = SettingKey[String]("cloudbees-jvm-properties", "Extra JVM properties to pass to the application. For example -DapplyEvolutions.default=true")
+    val jvmProps      = SettingKey[String]("cloudbees-jvm-properties", "Extra JVM properties to pass to the application. For example -DapplyEvolutions.default=true")
     val verbose       = SettingKey[Boolean]("cloudbees-client-verbose", "Set the Cloudbees API Client to verbose mode (default: false)")
+    val beesConfig    = SettingKey[String]("cloudbees-bees-config")
     // tasks
     val applications  = TaskKey[Unit]("cloudbees-applications")
     val deploy        = TaskKey[Unit]("cloudbees-deploy")
     val open          = TaskKey[Unit]("cloudbees-open", "Open the application in your default web browser")
     
     private[Plugin] val deployHelper = SettingKey[DeployHelper]("_private_deploy")
+    private[Plugin] val propsHelper = SettingKey[Map[String, String]]("_private_helper")
   }
 
+  
   val cloudBeesSettings: Seq[Setting[_]] = Seq(
-    host := "api.cloudbees.com",
+    host <<= propsHelper(_.get("bees.api.url").getOrElse("htps://api.cloudbees.com/api")),
+    beesConfig := System.getProperty("user.home") + "/.bees/bees.config",
     useDelta := true,
     openOnUpload := true,
-    username := None,
-    apiKey := None,
-    apiSecret := None,
+    username <<= propsHelper(_.get("bees.project.app.domain")),
+    apiKey <<= propsHelper(_.get("bees.api.key")),
+    apiSecret <<= propsHelper(_.get("bees.api.secret")),
     applicationId := None,
     client <<= (host, apiKey, apiSecret, verbose)(Client),
     deployParams := Map[String, String](),
@@ -59,7 +65,17 @@ object Plugin extends Plugin {
     applications <<= applicationsTask,
     deploy <<= deployTask,
     open <<= openTask,
-    deployHelper <<= (client, username, applicationId, useDelta, openOnUpload, normalizedName, version, deployParams, jvmProps)(DeployHelper)
+    deployHelper <<= (client, username, applicationId, useDelta, openOnUpload, normalizedName, version, deployParams, jvmProps)(DeployHelper),
+    propsHelper <<= (beesConfig).apply(s => {
+      val properties = new java.util.Properties
+      val f = file(s)
+      if(f.exists()){
+        properties.load(new FileInputStream(f.asFile))
+        propertiesAsScalaMap(properties).toMap
+      } else {
+        Map()
+      }
+    })
   ) 
   
  
