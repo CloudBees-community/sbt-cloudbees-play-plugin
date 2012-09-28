@@ -5,7 +5,7 @@ organization := "com.cloudbees.deploy.play"
 
 name := "sbt-cloudbees-play-plugin"
 
-version := "0.1-SNAPSHOT"
+//version := "0.1-SNAPSHOT"
 
 
 // maven repositories
