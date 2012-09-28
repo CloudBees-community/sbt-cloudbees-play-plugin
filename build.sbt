@@ -43,6 +43,7 @@ publishArtifact in Test := false
 
 pomIncludeRepository := { repo => false }
 
+releaseSettings
 
 pomExtra := (
   <url>https://github.com/cloudbees-cummunity/sbt-cloudbees-play-plugin</url>
