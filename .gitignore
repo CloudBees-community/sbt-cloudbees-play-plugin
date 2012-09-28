@@ -45,3 +45,6 @@ test-output
 runner
 
 *.lock
+
+.cache
+.history
