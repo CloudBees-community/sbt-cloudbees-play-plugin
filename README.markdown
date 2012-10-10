@@ -12,7 +12,7 @@ Firstly you need to add the plugin to your ~/.sbt/user.sbt or to your regular pr
 
 <pre><code>resolvers += "sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-addSbtPlugin("com.cloudbees.deploy.play" %% "sbt-cloudbees-play-plugin" % "0.1-SNAPSHOT")
+addSbtPlugin("com.cloudbees.deploy.play" %% "sbt-cloudbees-play-plugin" % "0.3-SNAPSHOT")
 </code></pre>
 
 Don't forget to export the settings so they are included by SBT:
