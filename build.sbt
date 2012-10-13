@@ -7,7 +7,6 @@ name := "sbt-cloudbees-play-plugin"
 
 //version := "0.1-SNAPSHOT"
 
-
 // maven repositories
 resolvers ++= Seq(
   "specs.repo" at "http://specs.googlecode.com/svn/maven2/",
@@ -21,6 +20,7 @@ scalacOptions += "-deprecation"
 libraryDependencies ++= Seq(
   "com.cloudbees" % "cloudbees-api-client-nodeps" % "1.2.1" % "compile",
   "edu.stanford.ejalbert" % "BrowserLauncher2" % "1.3" % "compile",
+  "com.typesafe" % "config" % "0.6.0" % "compile",
   "org.scala-tools.testing" % "specs" % "1.6.1" % "test"
 )
 
