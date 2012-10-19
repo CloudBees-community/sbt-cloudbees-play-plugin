@@ -8,6 +8,7 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._  
 import java.io.FileInputStream
 import com.typesafe.config.ConfigFactory
+import sbt.complete.Parser
 
 object BrowserLauncher extends BL()
 
@@ -57,9 +58,9 @@ object Plugin extends Plugin {
     
     private[Plugin] val deployHelper = SettingKey[DeployHelper]("_private_deploy")
     private[Plugin] val propsHelper = SettingKey[Map[String, String]]("_private_helper")
-  }
+    private[Plugin] val playConfigFilesHelper = SettingKey[Seq[File]]("_private_play_config_files")
+  }  
 
-  
   val cloudBeesSettings: Seq[Setting[_]] = Seq(
     host <<= propsHelper(_.get("bees.api.url").getOrElse("htps://api.cloudbees.com/api")),
     beesConfig := System.getProperty("user.home") + "/.bees/bees.config",
@@ -87,16 +88,15 @@ object Plugin extends Plugin {
       } else {
         Map()
       }
-    })
-  ) 
-  
- 
+    }),
+    playConfigFilesHelper <<= (PlayKeys.confDirectory)(conf => conf * ("*.conf" | "*.json" | "*.properties") get)
+  )
+
   /***** tasks ******/
   def applicationsTask = (client, streams) map { (client,s) =>
     client().applicationList.getApplications.asScala.foreach(
       a => s.log.info("+ %s - %s".format(a.getTitle, a.getUrls.head)))
   }
-  
   
   def deployTask = ((PlayProject.dist in Compile), deployHelper, streams) map {
     (archive, deployHelper, s) =>
@@ -105,29 +105,24 @@ object Plugin extends Plugin {
       performDeploy(archive, require(app, applicationId), deployHelper, s)
   }
 
-  def deployConfigTask = inputTask { (argTask: TaskKey[Seq[String]]) =>
-    (argTask, (PlayProject.dist in Compile), baseDirectory, name, deployHelper, streams) map { 
-      (args, archive, projBaseDir, projName, deployHelper, s) =>
+  def deployConfigTask = InputTask(playConfigsParser) { (argTask: TaskKey[(Option[String], Option[String])]) =>
+    (argTask, (PlayProject.dist in Compile), PlayKeys.confDirectory, name, deployHelper, streams) map { 
+      (args, archive, configFileDir, projName, deployHelper, s) =>
         import deployHelper.{user => maybeBeesAccount, app => maybeSbtBeesAppId, jvmProps}
 
         // Snag the active configuration file from the first cli argument, and the target Run@Cloud deployment
         // app id either (1) in the second argument, (2) from the file specified in arg 1, and
-        // finally (3) from the sbt setting.
-        val (configFileResource, maybeCliBeesAppId) = args.toList match {
-          case configFileResource :: deployTarget :: _ => (configFileResource, Some(deployTarget))
-          case configFileResource :: _ => (configFileResource, None)
-          case _ => ("application", None)
-        }
+        // finally (3) from the sbt setting.        
+        val configFileResource = args._1.getOrElse("application")
 
-        // Get the app id from the config file
-        val configFileDir = projBaseDir / "conf"
+        // Get the app id from the config file (though hey it might not be there)        
         val configFileResourcePath = configFileDir / configFileResource
         val playConfig = ConfigFactory.parseFileAnySyntax(configFileResourcePath)
         if (playConfig.isEmpty) sys.error(
           "No file named " + configFileResource + 
           ".conf, .json, or .properties was found in " + configFileDir
         )
-                
+        
         val beesAccount = require(maybeBeesAccount, username)
         
         val maybeConfigBeesAppId = if (playConfig.hasPath(appIdConfigKey)) {
@@ -137,7 +132,7 @@ object Plugin extends Plugin {
         }
  
         // Choose target app based on presence in one of our three sources
-        val beesAppId = maybeCliBeesAppId
+        val beesAppId = args._2
           .orElse(maybeConfigBeesAppId)
           .orElse(maybeSbtBeesAppId)
           .getOrElse(sys.error(noDeploymentTargetError))
@@ -161,6 +156,24 @@ object Plugin extends Plugin {
   }
 
   /***** internal *****/
+
+  /** Encodes the following grammar: cloudbees-deploy-config Option[<config_file_base>] Option[<bees_app_id>] */
+  private def playConfigsParser = {
+    (playConfigFilesHelper) { configFiles =>
+      (state: State) => {
+        import sbt.complete.DefaultParsers._
+        // Extract the configuration filenames sans extension from their Files.
+        val configNames = configFiles.map(_.name.reverse.dropWhile(_ != '.').tail.reverse)
+
+        // Sweet sweet tab-complete
+        val configParser = Space ~> token(NotSpace examples configNames.toSet)
+        val appIdParser = Space ~> NotSpace
+        
+        configParser.? ~ appIdParser.?
+      }
+    }
+  }
+
   private def targetAppId(username: String, appId: String) = appId.split("/").toList match {
     case a :: Nil => username+"/"+a
     case _ => appId
