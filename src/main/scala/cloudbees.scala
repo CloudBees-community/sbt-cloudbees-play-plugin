@@ -62,7 +62,7 @@ object Plugin extends Plugin {
   }  
 
   val cloudBeesSettings: Seq[Setting[_]] = Seq(
-    host <<= propsHelper(_.get("bees.api.url").getOrElse("htps://api.cloudbees.com/api")),
+    host <<= propsHelper(_.get("bees.api.url").getOrElse("https://api.cloudbees.com/api")),
     beesConfig := System.getProperty("user.home") + "/.bees/bees.config",
     useDelta := true,
     openOnUpload := true,
