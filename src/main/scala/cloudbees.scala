@@ -65,7 +65,7 @@ object Plugin extends Plugin {
     host <<= propsHelper(_.get("bees.api.url").getOrElse("https://api.cloudbees.com/api")),
     beesConfig := System.getProperty("user.home") + "/.bees/bees.config",
     useDelta := true,
-    openOnUpload := true,
+    openOnUpload := false,
     username <<= propsHelper(_.get("bees.project.app.domain")),
     apiKey <<= propsHelper(_.get("bees.api.key")),
     apiSecret <<= propsHelper(_.get("bees.api.secret")),
