@@ -12,7 +12,7 @@ Firstly you need to add the to project/plugins.sbt. You can do that with the fol
 
 <pre><code>resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
-addSbtPlugin("com.cloudbees.deploy.play" % "sbt-cloudbees-play-plugin" % "0.4-SNAPSHOT")
+addSbtPlugin("com.cloudbees.deploy.play" % "sbt-cloudbees-play-plugin" % "0.5-SNAPSHOT")
 </code></pre>
 
 Next you need to add the following to project/Build.scala
