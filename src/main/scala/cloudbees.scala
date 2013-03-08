@@ -82,12 +82,15 @@ object Plugin extends Plugin {
     propsHelper <<= (beesConfig).apply(s => {
       val properties = new java.util.Properties
       val f = file(s)
-      if(f.exists()){
+      val propMap = propertiesAsScalaMap(System.getProperties).toMap
+
+      val propMap2 = if(f.exists()){
         properties.load(new FileInputStream(f.asFile))
         propertiesAsScalaMap(properties).toMap
       } else {
         Map()
       }
+	propMap ++ propMap2
     }),
     playConfigFilesHelper <<= (PlayKeys.confDirectory)(conf => conf * ("*.conf" | "*.json" | "*.properties") get)
   )

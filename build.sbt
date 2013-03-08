@@ -12,8 +12,9 @@ resolvers ++= Seq(
   "specs.repo" at "http://specs.googlecode.com/svn/maven2/",
   "sonatype.repo" at "https://oss.sonatype.org/content/groups/public",
   "web-plugin.repo" at "http://siasia.github.com/maven2",
-  "typesafe releases" at "http://repo.typesafe.com/typesafe/releases"
-)
+  "typesafe releases" at "http://repo.typesafe.com/typesafe/releases")
+
+resolvers := Seq("typesafe" at "http://repo.typesafe.com/typesafe/repo")
 
 scalacOptions += "-deprecation"
 
@@ -25,7 +26,7 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies <++= (scalaVersion, sbtVersion)((scalaVersion, sbtVersion) =>
-	Seq("play" % "sbt-plugin" % "2.0.3" % "provided->default(compile)" extra ("scalaVersion" -> scalaVersion, "sbtVersion" -> sbtVersion))
+	Seq("play" % "sbt-plugin" % "2.1.0" % "provided->default(compile)" extra ("scalaVersion" -> scalaVersion, "sbtVersion" -> "0.12"))
 )
 
 credentials += Credentials(Path.userHome / ".ivy2" / ".credentials.sonatype")
