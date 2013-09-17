@@ -17,14 +17,14 @@ addSbtPlugin("com.cloudbees.deploy.play" % "sbt-cloudbees-play-plugin" % "0.5-SN
 
 Next you need to add the following to project/Build.scala
 
-<pre><code>import cloudbees.Plugin._
-//...
-//...
-val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA) 
+<pre><code>
+
+  import cloudbees.Plugin._
+  val main = play.Project(appName, appVersion, appDependencies) 
     .settings(cloudBeesSettings :_*)
-    .settings(
-  CloudBees.applicationId := Some("<applicationname>")
-)
+    .settings(CloudBees.applicationId := Some("michaelnealeclickstart2/gasp-web"))
+
+
 </code></pre>
 
 And finally you need to add the following to ~/.bees/bees.config (or if on windows %USERPROFILE%\bees\bees.config).
