@@ -22,7 +22,7 @@ Next you need to add the following to project/Build.scala
   import cloudbees.Plugin._
   val main = play.Project(appName, appVersion, appDependencies) 
     .settings(cloudBeesSettings :_*)
-    .settings(CloudBees.applicationId := Some("michaelnealeclickstart2/gasp-web"))
+    .settings(CloudBees.applicationId := Some("your account name/your app name"))
 
 
 </code></pre>
