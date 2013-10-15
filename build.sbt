@@ -26,7 +26,7 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies <++= (scalaVersion, sbtVersion)((scalaVersion, sbtVersion) =>
-	Seq("play" % "sbt-plugin" % "2.1.0" % "provided->default(compile)" extra ("scalaVersion" -> scalaVersion, "sbtVersion" -> "0.12"))
+	Seq("com.typesafe.play" % "sbt-plugin" % "2.2.0" % "provided->default(compile)" extra ( "scalaVersion"-> "2.10", "sbtVersion" -> "0.13"))
 )
 
 credentials += Credentials(Path.userHome / ".ivy2" / ".credentials.sonatype")

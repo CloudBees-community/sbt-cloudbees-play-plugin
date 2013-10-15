@@ -9,6 +9,7 @@ import scala.collection.JavaConverters._
 import java.io.FileInputStream
 import com.typesafe.config.ConfigFactory
 import sbt.complete.Parser
+import com.typesafe.sbt.packager.Keys.dist
 
 object BrowserLauncher extends BL()
 
@@ -92,7 +93,7 @@ object Plugin extends Plugin {
       }
 	propMap ++ propMap2
     }),
-    playConfigFilesHelper <<= (PlayKeys.confDirectory)(conf => conf * ("*.conf" | "*.json" | "*.properties") get)
+    playConfigFilesHelper <<= (play.Project.confDirectory)(conf => conf * ("*.conf" | "*.json" | "*.properties") get)
   )
 
   /***** tasks ******/
@@ -100,8 +101,8 @@ object Plugin extends Plugin {
     client().applicationList.getApplications.asScala.foreach(
       a => s.log.info("+ %s - %s".format(a.getTitle, a.getUrls.head)))
   }
-  
-  def deployTask = ((PlayProject.dist in Compile), deployHelper, streams) map {
+
+  def deployTask = ((dist in Compile), deployHelper, streams) map {
     (archive, deployHelper, s) =>
       import deployHelper.app
       
@@ -109,7 +110,7 @@ object Plugin extends Plugin {
   }
 
   def deployConfigTask = InputTask(playConfigsParser) { (argTask: TaskKey[(Option[String], Option[String])]) =>
-    (argTask, (PlayProject.dist in Compile), PlayKeys.confDirectory, name, deployHelper, streams) map { 
+    (argTask, (dist in Compile), play.Project.confDirectory, name, deployHelper, streams) map {
       (args, archive, configFileDir, projName, deployHelper, s) =>
         import deployHelper.{user => maybeBeesAccount, app => maybeSbtBeesAppId, jvmProps}
 
