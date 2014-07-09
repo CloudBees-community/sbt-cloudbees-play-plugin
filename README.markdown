@@ -10,7 +10,7 @@ Usage
 
 Firstly you need to add the to project/plugins.sbt. You can do that with the following:
 
-<pre><code>resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+<pre><code>resolvers += "Sonatype snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 addSbtPlugin("com.cloudbees.deploy.play" % "sbt-cloudbees-play-plugin" % "0.5-SNAPSHOT")
 </code></pre>
